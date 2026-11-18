@@ -29,7 +29,7 @@ myHadronLET_Denominator::myHadronLET_Denominator(TsParameterManager* pM, TsMater
 	G4String weightType = "dose";
 	if (fPm->ParameterExists(GetFullParmName("WeightBy"))){
 		weightType = fPm->GetStringParameter(GetFullParmName("WeightBy"));
-		weightType.toLower();
+		G4StrUtil::to_lower(weightType);
 	}
 	if (weightType == "dose"){
 		fDoseWeighted = true;
@@ -71,31 +71,8 @@ G4bool myHadronLET_Denominator::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 	if (DX <= 0.)
 		return false;
 	
-	// get the secondary paticles
-	G4Step fstep = *theTrack -> GetStep();
-	// store all the secondary partilce in current step
-	const std::vector<const G4Track*> * secondary = fstep.GetSecondaryInCurrentStep();
-	
-	size_t SecondarySize = (*secondary).size();
-	G4double EnergySecondary = 0.;
-	
-	// get secondary electrons energy deposited
-	if (SecondarySize) // calculate only secondary particles
-	{
-		for (size_t numsec = 0; numsec< SecondarySize ; numsec ++)
-		{
-			//Get the PDG code of every secondaty particles in current step
-			G4int PDGSecondary=(*secondary)[numsec]->GetDefinition()->GetPDGEncoding();
-			
-			if(PDGSecondary == 11) // calculate only secondary electrons
-			{
-				// calculate the energy deposit of secondary electrons in current step
-				EnergySecondary += (*secondary)[numsec]->GetKineticEnergy();
-			}
-		}		
-	}
-
-	G4double total_energy_loss = EnergySecondary + energyDeposit; 
+	// Use the same deposited-energy weight as the numerator.
+	G4double total_energy_loss = energyDeposit; 
 	// G4double total_energy_loss = energyDeposit; 
 
     // // Total LET calculation...

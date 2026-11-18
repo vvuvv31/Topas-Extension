@@ -31,7 +31,7 @@ myHadronLET::myHadronLET(TsParameterManager *pM, TsMaterialManager *mM, TsGeomet
 	G4String weightType = "dose";
 	if (fPm->ParameterExists(GetFullParmName("WeightBy"))){
 		weightType = fPm->GetStringParameter(GetFullParmName("WeightBy"));
-		weightType.toLower();
+		G4StrUtil::to_lower(weightType);
 	}
 	if (weightType == "dose"){
 		fDoseWeighted = true;
@@ -129,8 +129,9 @@ G4int myHadronLET::CombineSubScorers()
 	{
 		if (denomScorer->fFirstMomentMap[index] == 0.)
 		{
+			// Empty bins have no ratio; count only a nonzero numerator with missing denominator.
+			if (fFirstMomentMap[index] != 0.) counter++;
 			fFirstMomentMap[index] = 0;
-			counter++;
 		}
 		else
 		{
